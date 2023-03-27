@@ -1,11 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
+import Service from "../../repository/Repository";
+import { useNavigate } from 'react-router-dom';
 
-const searchAuthor = (props) => {
-    const onFormSubmit = (e) => {
+const SearchAuthor = (props) => {
+    const [responestate, updatedata] = React.useState()
+    const history = useNavigate();
+    const onFormSubmit =async (e) => {
         e.preventDefault();
         const name = e.target.name.value;
-
-        props.onsearch(name);
+        let response=await Service.searchAuthor(name)
+        console.log(response)
+        responestate(response)
+        updatedata(response)
+        history('/result');
     }
     return (
         <div className="row mt-5">
@@ -30,4 +37,4 @@ const searchAuthor = (props) => {
         </div>
     )
 }
-export default searchAuthor;
+export default SearchAuthor;

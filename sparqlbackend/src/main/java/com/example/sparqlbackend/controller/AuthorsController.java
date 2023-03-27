@@ -83,4 +83,28 @@ public class AuthorsController {
         }
         return ResponseEntity.ok().body(jsonObject.toString());
     }
+
+    @PostMapping("/searchbook")
+    public ResponseEntity<String> getBook(@RequestBody String namejson) throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode jsonNode = objectMapper.readTree(namejson);
+        String name = jsonNode.get("name").asText();
+        System.out.println(name);
+        String SPARQLEndpoint = "https://dbpedia.org/sparql";
+        String query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX dbp: <http://dbpedia.org/property/> PREFIX dbo: <http://dbpedia.org/ontology/> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX dbr: <http://dbpedia.org/resource/> SELECT DISTINCT ?authorLabel ?country ?abstract ?label ?language ?releaseDate ?genres WHERE{ dbr:The_Adventures_of_Tom_Sawyer   dbp:genre ?genre; dbo:author?author ; dbo:abstract ?abstract; rdfs:label ?label; dbp:releaseDate ?releaseDate; dbp:country ?country; dbp:language ?language; dbp:genre ?genre. ?author rdfs:label ?authorLabel. ?genre rdfs:label ?genres FILTER(LANGMATCHES(LANG(?abstract), 'en')) FILTER(LANGMATCHES(LANG(?authorLabel), 'en')) FILTER(LANGMATCHES(LANG(?genres), 'en')) FILTER(LANGMATCHES(LANG(?label), 'en'))}";
+        Query sparqlQuery = QueryFactory.create(query);
+        QueryExecution e = QueryExecutionFactory.sparqlService(SPARQLEndpoint, sparqlQuery);
+        System.out.println("ok");
+        JSONObject jsonObject = new JSONObject();
+        try (QueryExecution queryExecution = QueryExecutionFactory.sparqlService(SPARQLEndpoint, sparqlQuery)) {
+            ResultSet result = queryExecution.execSelect();
+            QuerySolution solution = result.nextSolution();
+            jsonObject.put("label", solution.get("label"));
+            jsonObject.put("releaseDate", solution.get("releaseDate"));
+            jsonObject.put("country", solution.get("country"));
+            jsonObject.put("language", solution.get("language"));
+            jsonObject.put("abstract", solution.get("abstract"));
+        }
+        return ResponseEntity.ok().body(jsonObject.toString());
+    }
 }
