@@ -107,4 +107,23 @@ public class AuthorsController {
         }
         return ResponseEntity.ok().body(jsonObject.toString());
     }
+    @PostMapping("/romanticism")
+    public ResponseEntity<String> Romanticism(@RequestBody String namejson) throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode jsonNode = objectMapper.readTree(namejson);
+        String name = jsonNode.get("name").asText();
+        System.out.println(name);
+        String SPARQLEndpoint = "https://dbpedia.org/sparql";
+        String query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX dbp: <http://dbpedia.org/property/> PREFIX dbo: <http://dbpedia.org/ontology/> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX dbr: <http://dbpedia.org/resource/> SELECT DISTINCT ?bname ?abstract WHERE{ ?move dbp:movement dbr:Romanticism . ?move dbp:birthName ?bname  . dbr:Romanticism   dbo:abstract ?abstract FILTER(LANGMATCHES(LANG(?abstract), 'en')) }\n";
+        Query sparqlQuery = QueryFactory.create(query);
+        QueryExecution e = QueryExecutionFactory.sparqlService(SPARQLEndpoint, sparqlQuery);
+        System.out.println("ok");
+        JSONObject jsonObject = new JSONObject();
+        try (QueryExecution queryExecution = QueryExecutionFactory.sparqlService(SPARQLEndpoint, sparqlQuery)) {
+            ResultSet result = queryExecution.execSelect();
+            QuerySolution solution = result.nextSolution();
+            jsonObject.put("abstract", solution.get("abstract"));
+        }
+        return ResponseEntity.ok().body(jsonObject.toString());
+    }
 }
