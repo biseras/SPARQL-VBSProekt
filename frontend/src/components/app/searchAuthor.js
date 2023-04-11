@@ -10,9 +10,8 @@ const SearchAuthor = (props) => {
         const name = e.target.name.value;
         let response=await Service.searchAuthor(name)
         console.log(response)
-        responestate(response)
-        updatedata(response)
-        history('/result');
+        updatedata(response.data)
+        history('/result', {state:response});
     }
     return (
         <div className="row mt-5">
@@ -35,6 +34,7 @@ const SearchAuthor = (props) => {
                 </form>
             </div>
         </div>
+
     )
 }
 export default SearchAuthor;

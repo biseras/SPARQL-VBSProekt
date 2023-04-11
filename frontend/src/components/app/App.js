@@ -23,8 +23,8 @@ class App extends Component{
           <Header/>
           <div className={"container"}>
             <Routes>
-              <Route path="/searchauthor" element={<SearchAuthor onsearch={this.searchAuthor} />} />
-                <Route path="/result" element={SearchResult} />
+                <Route path="/searchauthor" element={<SearchAuthor onsearch={this.searchAuthor} />} />
+                <Route path="/result" element={<SearchResult/>} />
             </Routes>
           </div>
         </div>

@@ -1,14 +1,19 @@
 import React from 'react';
+import Service from "../../repository/Repository";
+import {useLocation} from "react-router-dom";
 
-const SearchResult = (props) => {
-    const { data } = props.location.state;
+const SearchResult = ({ data }) => {
+    const location=useLocation()
+    const mydata=location.state
+    const onFormSubmit =async (e) => {
+        e.preventDefault();
+        console.log(mydata)
+    }
     return (
         <div>
-            <h1>{data.searchname}</h1>
-            <p>Birthplace: {data.birthPlace}</p>
-            <img src={data.thumbnail} alt={data.searchname} />
+            <h1>{mydata.birthname}</h1>
         </div>
-    )
-}
+    );
+};
 
 export default SearchResult;
