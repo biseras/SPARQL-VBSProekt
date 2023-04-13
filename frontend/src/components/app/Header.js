@@ -14,6 +14,7 @@ const header = (props) => {
                     <ul className="navbar-nav mr-auto">
                         <li className="nav-item active">
                             <Link className={"nav-link"} to={"/searchauthor"}>Search Author</Link>
+                            <Link className={"nav-link"} to={"/searchbook"}>Search Book</Link>
                         </li>
                     </ul>
                 </div>

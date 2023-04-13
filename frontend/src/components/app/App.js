@@ -1,5 +1,6 @@
 import React from "react";
 import SearchAuthor from "./searchAuthor";
+import SearchBook from "./searchBook";
 import {Component} from "react";
 import Header from "./Header";
 import {
@@ -8,13 +9,15 @@ import {
   Route, Router
 } from 'react-router-dom';
 import SearchResult from './searchResult';
+import SearchResultBook from './searchResultBook';
 import Service from "../../repository/Repository";
 
 class App extends Component{
     constructor(props) {
         super(props);
         this.state={
-            author:[]
+            author:[],
+            book:[]
         }
     }
   render() {
@@ -25,6 +28,8 @@ class App extends Component{
             <Routes>
                 <Route path="/searchauthor" element={<SearchAuthor onsearch={this.searchAuthor} />} />
                 <Route path="/result" element={<SearchResult/>} />
+                <Route path="/searchbook" element={<SearchBook onsearch={this.searchBook} />} />
+                <Route path="/resultbook" element={<SearchResultBook/>} />
             </Routes>
           </div>
         </div>
@@ -39,6 +44,15 @@ class App extends Component{
           })
       });
   }
+  searchBook = (name) => {
+        Service.searchBook(name)
+            .then((data)=>{
+
+                this.setState({
+                    book:data.data
+                })
+            });
+    }
 }
 
 export default App;

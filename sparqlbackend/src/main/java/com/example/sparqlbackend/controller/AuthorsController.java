@@ -7,10 +7,7 @@ import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.RDFNode;
 import org.json.JSONObject;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -107,14 +104,27 @@ public class AuthorsController {
         }
         return ResponseEntity.ok().body(jsonObject.toString());
     }
-    @PostMapping("/romanticism")
-    public ResponseEntity<String> Romanticism(@RequestBody String namejson) throws Exception {
+    @GetMapping("/romanticism")
+    public ResponseEntity<String> Romanticism() throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode jsonNode = objectMapper.readTree(namejson);
-        String name = jsonNode.get("name").asText();
-        System.out.println(name);
         String SPARQLEndpoint = "https://dbpedia.org/sparql";
-        String query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX dbp: <http://dbpedia.org/property/> PREFIX dbo: <http://dbpedia.org/ontology/> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX dbr: <http://dbpedia.org/resource/> SELECT DISTINCT ?bname ?abstract WHERE{ ?move dbp:movement dbr:Romanticism . ?move dbp:birthName ?bname  . dbr:Romanticism   dbo:abstract ?abstract FILTER(LANGMATCHES(LANG(?abstract), 'en')) }\n";
+        String query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX dbp: <http://dbpedia.org/property/> PREFIX dbo: <http://dbpedia.org/ontology/> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX dbr: <http://dbpedia.org/resource/> SELECT DISTINCT ?bname ?abstract ?label WHERE{ ?move dbp:movement dbr:Romanticism . ?move dbp:birthName ?bname  . dbr:Romanticism   dbo:abstract ?abstract; rdfs:label ?label FILTER(LANGMATCHES(LANG(?abstract), 'en')) FILTER(LANGMATCHES(LANG(?label), 'en')) }\n";
+        Query sparqlQuery = QueryFactory.create(query);
+        QueryExecution e = QueryExecutionFactory.sparqlService(SPARQLEndpoint, sparqlQuery);
+        System.out.println("ok");
+        JSONObject jsonObject = new JSONObject();
+        try (QueryExecution queryExecution = QueryExecutionFactory.sparqlService(SPARQLEndpoint, sparqlQuery)) {
+            ResultSet result = queryExecution.execSelect();
+            QuerySolution solution = result.nextSolution();
+            jsonObject.put("abstract", solution.get("abstract"));
+        }
+        return ResponseEntity.ok().body(jsonObject.toString());
+    }
+    @GetMapping("/Literary_realism")
+    public ResponseEntity<String> Romanticism() throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String SPARQLEndpoint = "https://dbpedia.org/sparql";
+        String query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX dbp: <http://dbpedia.org/property/> PREFIX dbo: <http://dbpedia.org/ontology/> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX dbr: <http://dbpedia.org/resource/> SELECT DISTINCT ?bname ?abstract ?label WHERE{ ?move dbp:movement dbr:Literary_realism . ?move dbp:birthName ?bname  . dbr:Literary_realism   dbo:abstract ?abstract; rdfs:label ?label FILTER(LANGMATCHES(LANG(?abstract), 'en')) FILTER(LANGMATCHES(LANG(?label), 'en')) }\n";
         Query sparqlQuery = QueryFactory.create(query);
         QueryExecution e = QueryExecutionFactory.sparqlService(SPARQLEndpoint, sparqlQuery);
         System.out.println("ok");

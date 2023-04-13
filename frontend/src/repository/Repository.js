@@ -6,6 +6,13 @@ const Service={
         }).then(response => {
             return response.data;
         })
+    },
+    searchBook: (name) => {
+        return axios.post("/searchbook", {
+            "name":name
+        }).then(response => {
+            return response.data;
+        })
     }
 }
 
