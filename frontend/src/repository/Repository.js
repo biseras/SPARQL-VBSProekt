@@ -13,6 +13,9 @@ const Service={
         }).then(response => {
             return response.data;
         })
+    },
+    booksromanticism:()  => {
+        return axios.get("/romanticism")
     }
 }
 

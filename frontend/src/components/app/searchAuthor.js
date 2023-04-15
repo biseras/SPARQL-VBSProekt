@@ -14,27 +14,39 @@ const SearchAuthor = (props) => {
         history('/result', {state:response});
     }
     return (
-        <div className="row mt-5">
-            <div className="col-md-5">
+        <div style={{
+            backgroundColor: 'lightpink',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100vh',
+        }}>
+            <div style={{
+                backgroundColor: 'white',
+                border: '5px solid black',
+                padding: '20px',
+                borderRadius: '10px',
+                fontSize: '24px',
+                textAlign: 'center',
+            }}>
+                <p style={{ color: 'black', font:'20' }}><i>Enter the author name to see more data from dbpedia about it</i></p>
                 <form onSubmit={onFormSubmit}>
                     <div className="form-group">
-                        <label htmlFor="name">Author name</label>
-                        <h3>Enter author name to see more data from dbpedia about him</h3>
-                        <input type="text"
-                               className="form-control"
-                               id="name"
-                               name="name"
-                               required
-                               placeholder="Enter author name"
-                               // onChange={handleChange}
+                        <input
+                            type="text"
+                            className="form-control"
+                            id="name"
+                            name="name"
+                            required
+                            placeholder="Enter author name"
+                            style={{ fontSize: '18px', marginBottom: '10px', width: '300px' }}
                         />
                     </div>
-                    <br/>
-                    <button id="submit" type="submit" className="btn btn-primary">Submit</button>
+                    <br />
+                    <button type="submit" className="btn btn-primary" style={{ fontSize: '18px' }}>Submit</button>
                 </form>
             </div>
         </div>
-
     )
 }
 export default SearchAuthor;

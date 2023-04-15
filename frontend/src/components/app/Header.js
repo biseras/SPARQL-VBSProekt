@@ -1,5 +1,6 @@
 import React from 'react';
-import {Link} from 'react-router-dom';
+import {Link, Route} from 'react-router-dom';
+import Showromanticismbooks from "./showromanticismbooks";
 
 const header = (props) => {
     return (
@@ -15,6 +16,7 @@ const header = (props) => {
                         <li className="nav-item active">
                             <Link className={"nav-link"} to={"/searchauthor"}>Search Author</Link>
                             <Link className={"nav-link"} to={"/searchbook"}>Search Book</Link>
+                            <Link className={"nav-link"} to={"/romanticism"}>Romanticism</Link>
                         </li>
                     </ul>
                 </div>

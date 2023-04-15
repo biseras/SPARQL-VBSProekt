@@ -1,5 +1,6 @@
 import React from "react";
 import SearchAuthor from "./searchAuthor";
+import Showromanticismbooks from "./showromanticismbooks";
 import SearchBook from "./searchBook";
 import {Component} from "react";
 import Header from "./Header";
@@ -17,7 +18,8 @@ class App extends Component{
         super(props);
         this.state={
             author:[],
-            book:[]
+            book:[],
+            booksrom:[]
         }
     }
   render() {
@@ -30,11 +32,15 @@ class App extends Component{
                 <Route path="/result" element={<SearchResult/>} />
                 <Route path="/searchbook" element={<SearchBook onsearch={this.searchBook} />} />
                 <Route path="/resultbook" element={<SearchResultBook/>} />
+                <Route path="/romanticism"  exact element={<Showromanticismbooks show={this.state.booksrom}/>}/>
             </Routes>
           </div>
         </div>
     )
   }
+    componentDidMount() {
+        this.booksrom();
+    }
   searchAuthor = (name) => {
     Service.searchAuthor(name)
         .then((data)=>{
@@ -44,6 +50,14 @@ class App extends Component{
           })
       });
   }
+    booksrom = () => {
+        Service.booksromanticism()
+            .then((data)=>{
+                this.setState({
+                    booksrom:data.data
+                })
+            });
+    }
   searchBook = (name) => {
         Service.searchBook(name)
             .then((data)=>{

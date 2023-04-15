@@ -121,7 +121,7 @@ public class AuthorsController {
         return ResponseEntity.ok().body(jsonObject.toString());
     }
     @GetMapping("/Literary_realism")
-    public ResponseEntity<String> Romanticism() throws Exception {
+    public ResponseEntity<String> Literary_realism() throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         String SPARQLEndpoint = "https://dbpedia.org/sparql";
         String query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX dbp: <http://dbpedia.org/property/> PREFIX dbo: <http://dbpedia.org/ontology/> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX dbr: <http://dbpedia.org/resource/> SELECT DISTINCT ?bname ?abstract ?label WHERE{ ?move dbp:movement dbr:Literary_realism . ?move dbp:birthName ?bname  . dbr:Literary_realism   dbo:abstract ?abstract; rdfs:label ?label FILTER(LANGMATCHES(LANG(?abstract), 'en')) FILTER(LANGMATCHES(LANG(?label), 'en')) }\n";
