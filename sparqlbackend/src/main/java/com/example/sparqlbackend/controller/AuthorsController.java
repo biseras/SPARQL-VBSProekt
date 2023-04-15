@@ -113,10 +113,26 @@ public class AuthorsController {
         QueryExecution e = QueryExecutionFactory.sparqlService(SPARQLEndpoint, sparqlQuery);
         System.out.println("ok");
         JSONObject jsonObject = new JSONObject();
+        List<String> authors=new ArrayList<>();
         try (QueryExecution queryExecution = QueryExecutionFactory.sparqlService(SPARQLEndpoint, sparqlQuery)) {
             ResultSet result = queryExecution.execSelect();
             QuerySolution solution = result.nextSolution();
-            jsonObject.put("abstract", solution.get("abstract"));
+            String abstractt= String.valueOf(solution.get("abstract"));
+            String abniza [];
+            abniza=abstractt.split("@");
+            jsonObject.put("abstract", abniza[0]);
+            String label= String.valueOf(solution.get("label"));
+            String labelniza [];
+            labelniza=label.split("@");
+            jsonObject.put("label", labelniza[0]);
+            while (result.hasNext()) {
+                QuerySolution solutionn = result.nextSolution();
+                String ime= String.valueOf(solutionn.get("bname"));
+                String [] niza;
+                niza=ime.split("@");
+                authors.add(niza[0]);
+            }
+            jsonObject.put("authors", authors);
         }
         return ResponseEntity.ok().body(jsonObject.toString());
     }
