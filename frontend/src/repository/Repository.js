@@ -16,6 +16,15 @@ const Service={
     },
     booksromanticism:()  => {
         return axios.get("/romanticism")
+    },
+    booksliterary_realism:()  => {
+        return axios.get("/literaryrealism")
+    },
+    booksliterary_modernisam:()  => {
+        return axios.get("/modernism")
+    },
+    booksliterary_postmodernisam:()  => {
+        return axios.get("/postmodernism")
     }
 }
 

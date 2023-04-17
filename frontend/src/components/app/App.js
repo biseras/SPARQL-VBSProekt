@@ -1,6 +1,9 @@
 import React from "react";
 import SearchAuthor from "./searchAuthor";
 import Showromanticismbooks from "./showromanticismbooks";
+import Showrelbooks from "./showbooksrealism";
+import Showmodbooks from "./showbooksmodernisam";
+import Showpostmodbooks from "./showpostmodbooks"
 import SearchBook from "./searchBook";
 import {Component} from "react";
 import Header from "./Header";
@@ -10,6 +13,7 @@ import {
   Route, Router
 } from 'react-router-dom';
 import SearchResult from './searchResult';
+import Show from './literatureshow';
 import SearchResultBook from './searchResultBook';
 import Service from "../../repository/Repository";
 
@@ -19,7 +23,10 @@ class App extends Component{
         this.state={
             author:[],
             book:[],
-            booksrom:[]
+            booksrom:[],
+            booksrel:[],
+            booksmod:[],
+            bookspostmod:[]
         }
     }
   render() {
@@ -33,6 +40,10 @@ class App extends Component{
                 <Route path="/searchbook" element={<SearchBook onsearch={this.searchBook} />} />
                 <Route path="/resultbook" element={<SearchResultBook/>} />
                 <Route path="/romanticism"  exact element={<Showromanticismbooks show={this.state.booksrom}/>}/>
+                <Route path="/literaryrealism"  exact element={<Showrelbooks show={this.state.booksrel}/>}/>
+                <Route path="/modernism"  exact element={<Showmodbooks show={this.state.booksmod}/>}/>
+                <Route path="/postmodernism"  exact element={<Showpostmodbooks show={this.state.bookspostmod}/>}/>
+                <Route path="/literature" element={<Show/>} />
             </Routes>
           </div>
         </div>
@@ -40,6 +51,9 @@ class App extends Component{
   }
     componentDidMount() {
         this.booksrom();
+        this.booksrel();
+        this.booksmod();
+        this.bookspostmod();
     }
   searchAuthor = (name) => {
     Service.searchAuthor(name)
@@ -58,6 +72,30 @@ class App extends Component{
                 })
             });
     }
+    booksrel = () => {
+        Service.booksliterary_realism()
+            .then((data)=>{
+                this.setState({
+                    booksrel:data.data
+                })
+            });
+    }
+    booksmod = () => {
+        Service.booksliterary_modernisam()
+            .then((data)=>{
+                this.setState({
+                    booksmod:data.data
+                })
+            });
+    }
+    bookspostmod = () => {
+        Service.booksliterary_postmodernisam()
+            .then((data)=>{
+                this.setState({
+                    bookspostmod:data.data
+                })
+            });
+    }
   searchBook = (name) => {
         Service.searchBook(name)
             .then((data)=>{
@@ -66,6 +104,9 @@ class App extends Component{
                     book:data.data
                 })
             });
+    }
+    lit = () => {
+
     }
 }
 
