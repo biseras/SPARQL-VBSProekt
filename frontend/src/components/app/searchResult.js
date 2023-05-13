@@ -14,6 +14,10 @@ const SearchResult = ({ data }) => {
             <h1 style={{ fontSize: "32px", margin: "20px 0", color: "#333" }}>{mydata.searchname}</h1>
             <img src={mydata.thumbnail} alt={mydata.searchname} style={{ width: "50%", marginBottom: "20px", borderRadius: "10px", boxShadow: "0px 0px 10px #ccc" }} />
             <p style={{ fontSize: "18px", textAlign: "center", maxWidth: "600px", color: "#666" }}>{mydata.abstract}</p>
+            <p style={{ fontSize: "18px", textAlign: "center", maxWidth: "600px", color: "#666" }}>Birth Date: {mydata.birthDate}</p>
+            <p style={{ fontSize: "18px", textAlign: "center", maxWidth: "600px", color: "#666" }}>Death Date: {mydata.deathDate}</p>
+            <p style={{ fontSize: "18px", textAlign: "center", maxWidth: "600px", color: "#666" }}>Birth Place: {mydata.birthPlace}</p>
+            <p style={{ fontSize: "18px", textAlign: "center", maxWidth: "600px", color: "#666" }}>Death Place: {mydata.deathPlace}</p>
             <h2 style={{ fontSize: "24px", margin: "20px 0", color: "#333" }}>Books:</h2>
             <ul style={{ listStyle: "none", paddingLeft: 0 }}>
                 {mydata.book.map((book) => (

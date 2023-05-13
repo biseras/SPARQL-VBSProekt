@@ -13,6 +13,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 
 @RestController
@@ -31,13 +32,15 @@ public class AuthorsController {
         QueryExecution e = QueryExecutionFactory.sparqlService(SPARQLEndpoint, sparqlQuery);
         System.out.println("ok");
         JSONObject jsonObject = new JSONObject();
-        List<String> book=new ArrayList<>();
+        HashSet<String> book=new HashSet<>();
         try (QueryExecution queryExecution = QueryExecutionFactory.sparqlService(SPARQLEndpoint, sparqlQuery)) {
             ResultSet resultSet = queryExecution.execSelect();
             while (resultSet.hasNext()) {
                 QuerySolution solution = resultSet.nextSolution();
                 String ime= String.valueOf(solution.get("ime"));
-                book.add(ime);
+                String[] parts = ime.split("@");
+                String imebook = parts[0];
+                book.add(imebook);
             }
             jsonObject.put("book", book);
             QueryExecution eq = QueryExecutionFactory.sparqlService(SPARQLEndpoint, sparqlQuery);
@@ -52,30 +55,17 @@ public class AuthorsController {
             RDFNode birthDateNode = solution.get("birthDate");
             RDFNode deathDateNode = solution.get("deathDate");
             if (birthDateNode != null) {
-                Literal birthDateLiteral = birthDateNode.asLiteral();
-                if (birthDateLiteral != null) {
-                    String birthDateString = birthDateLiteral.getLexicalForm();
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                    try {
-                        Date birthDate = sdf.parse(birthDateString.substring(0, 10));
-                        jsonObject.put("birthDate", birthDate);
-                    } catch (ParseException ex) {
-                        throw new RuntimeException(ex);
-                    }
-                }
+                String birthDateLiteral = String.valueOf(birthDateNode.asLiteral());
+                System.out.println(birthDateLiteral);
+                String[] parts = birthDateLiteral.split("\\^\\^");
+                String birthDate = parts[0];
+                jsonObject.put("birthDate", birthDate);
             }
             if (deathDateNode != null) {
-                Literal deathDateLiteral = deathDateNode.asLiteral();
-                if (deathDateLiteral != null) {
-                    String deathDateString = deathDateLiteral.getLexicalForm();
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                    try {
-                        Date deathDate = sdf.parse(deathDateString.substring(0, 10));
-                        jsonObject.put("deathDate", deathDate);
-                    } catch (ParseException ex) {
-                        throw new RuntimeException(ex);
-                    }
-                }
+                String deathDateLiteral = String.valueOf(deathDateNode.asLiteral());
+                String[] parts = deathDateLiteral.split("\\^\\^");
+                String deathDate = parts[0];
+                jsonObject.put("deathDate", deathDate);
             }
         }
         return ResponseEntity.ok().body(jsonObject.toString());
