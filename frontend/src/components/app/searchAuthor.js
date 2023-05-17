@@ -29,7 +29,19 @@ const SearchAuthor = () => {
                 style={{ fontSize: '24px', marginBottom: '20px', width: '500px', borderRadius: "5px", padding: "10px" }}>
                 <option value="">Select an author</option>*/}
                 <option value="Mark_Twain">Mark Twain</option>*/}
-                <option value="Edgar_Allan_Poe">Edgar Allan Poe</option>
+                <option value="Fyodor_Dostoevsky">Fyodor Dostoevsky</option>*/}
+                <option value="Anton_Chekhov">Anton Chekhov</option>*/}
+                <option value="Samuel_Beckett">Samuel Beckett</option>*/}
+                <option value="Victor_Hugo">Victor Hugo</option>*/}
+                <option value="Honoré_de_Balzac">Honoré de Balzac</option>*/}
+                <option value="Ivo_Andrić">Ivo Andrić</option>*/}
+                <option value="Ernest_Hemingway">Ernest Hemingway</option>*/}
+                <option value="Miguel_de_Cervantes">Miguel de Cervantes</option>*/}
+                <option value="Giovanni_Boccaccio">Giovanni Boccaccio</option>*/}
+                <option value="Kočo_Racin">Kočo Racin</option>*/}
+                <option value="Charles_Dickens">Charles Dickens</option>*/}
+                <option value="Jules_Verne">Jules Verne</option>*/}
+                <option value="Leo_Tolstoy">Leo Tolstoy</option>*/}
             </select>
                 <button type="submit" className="btn btn-primary" style={{ fontSize: '24px', borderRadius: "5px", padding: "10px" }}>Submit</button>
             </div>

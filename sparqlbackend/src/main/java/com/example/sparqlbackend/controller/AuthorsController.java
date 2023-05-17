@@ -3,18 +3,12 @@ package com.example.sparqlbackend.controller;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.jena.query.*;
-import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.RDFNode;
 import org.json.JSONObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
@@ -27,7 +21,7 @@ public class AuthorsController {
         System.out.println(name);
         String SPARQLEndpoint = "https://dbpedia.org/sparql";
         String query =
-                "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX dbp: <http://dbpedia.org/property/> PREFIX dbo: <http://dbpedia.org/ontology/> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX dbr: <http://dbpedia.org/resource/> PREFIX dct: <http://purl.org/dc/terms/> SELECT DISTINCT ?ime ?birthname ?abstract ?birthDate ?birthPlace ?deathDate ?deathPlace ?thumbnail WHERE { ?books dbo:author dbr:"+name+" . ?books rdfs:label ?ime . dbr:"+name+" dbo:abstract ?abstract ;dbp:birthName ?birthname ; dbp:birthDate ?birthDate ; dbp:birthPlace ?birthPlace ; dbo:deathDate ?deathDate ; dbp:deathPlace ?deathPlace ; dbo:thumbnail ?thumbnail . FILTER(LANGMATCHES(LANG(?abstract), 'en')) FILTER(LANG(?ime) = 'en')}";
+                "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX dbp: <http://dbpedia.org/property/> PREFIX dbo: <http://dbpedia.org/ontology/> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX dbr: <http://dbpedia.org/resource/> PREFIX dct: <http://purl.org/dc/terms/> SELECT DISTINCT ?ime ?abstract ?birthDate ?birthPlace ?deathDate ?deathPlace ?thumbnail WHERE { ?books dbo:author dbr:"+name+" . ?books rdfs:label ?ime . dbr:"+name+" dbo:abstract ?abstract ; dbp:birthDate ?birthDate ; dbp:birthPlace ?birthPlace ; dbo:deathDate ?deathDate ; dbp:deathPlace ?deathPlace ; dbo:thumbnail ?thumbnail . FILTER(LANGMATCHES(LANG(?abstract), 'en')) FILTER(LANG(?ime) = 'en')}";
         Query sparqlQuery = QueryFactory.create(query);
         QueryExecution e = QueryExecutionFactory.sparqlService(SPARQLEndpoint, sparqlQuery);
         System.out.println("ok");
@@ -75,22 +69,56 @@ public class AuthorsController {
     public ResponseEntity<String> getBook(@RequestBody String namejson) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(namejson);
-        String name = jsonNode.get("name").asText();
+        String nameget = jsonNode.get("name").asText();
+        String name = nameget.replace(" ", "_");
         System.out.println(name);
         String SPARQLEndpoint = "https://dbpedia.org/sparql";
-        String query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX dbp: <http://dbpedia.org/property/> PREFIX dbo: <http://dbpedia.org/ontology/> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX dbr: <http://dbpedia.org/resource/> SELECT DISTINCT ?authorLabel ?country ?abstract ?label ?language ?releaseDate ?genres WHERE{ dbr:The_Adventures_of_Tom_Sawyer   dbp:genre ?genre; dbo:author?author ; dbo:abstract ?abstract; rdfs:label ?label; dbp:releaseDate ?releaseDate; dbp:country ?country; dbp:language ?language; dbp:genre ?genre. ?author rdfs:label ?authorLabel. ?genre rdfs:label ?genres FILTER(LANGMATCHES(LANG(?abstract), 'en')) FILTER(LANGMATCHES(LANG(?authorLabel), 'en')) FILTER(LANGMATCHES(LANG(?genres), 'en')) FILTER(LANGMATCHES(LANG(?label), 'en'))}";
-        Query sparqlQuery = QueryFactory.create(query);
-        QueryExecution e = QueryExecutionFactory.sparqlService(SPARQLEndpoint, sparqlQuery);
-        System.out.println("ok");
+        List<String>listfind=new ArrayList<>();
+        listfind.add("dbo:abstract");
+        listfind.add("rdfs:label");
+        listfind.add("dbp:releaseDate");
+        listfind.add("dbp:country");
+        listfind.add("dbp:language");
         JSONObject jsonObject = new JSONObject();
-        try (QueryExecution queryExecution = QueryExecutionFactory.sparqlService(SPARQLEndpoint, sparqlQuery)) {
-            ResultSet result = queryExecution.execSelect();
-            QuerySolution solution = result.nextSolution();
-            jsonObject.put("label", solution.get("label"));
-            jsonObject.put("releaseDate", solution.get("releaseDate"));
-            jsonObject.put("country", solution.get("country"));
-            jsonObject.put("language", solution.get("language"));
-            jsonObject.put("abstract", solution.get("abstract"));
+        for (int i=0; i<listfind.size(); i++) {
+            String [] split=listfind.get(i).split(":");
+            try{
+                String query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX dbp: <http://dbpedia.org/property/> PREFIX dbo: <http://dbpedia.org/ontology/> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX dbr: <http://dbpedia.org/resource/> SELECT DISTINCT ?"+split[1]+" WHERE{ dbr:"+name+" "+listfind.get(i)+ "?"+split[1]+" FILTER(LANGMATCHES(LANG(?"+split[1]+"), 'en'))}";
+                Query sparqlQuery = QueryFactory.create(query);
+                QueryExecution e = QueryExecutionFactory.sparqlService(SPARQLEndpoint, sparqlQuery);
+                ResultSet result = e.execSelect();
+                QuerySolution solution = result.nextSolution();
+                RDFNode addtojson=solution.get(split[1]);
+                String addtojsonValue = addtojson.toString().replaceAll("@en", "");
+                jsonObject.put(split[1], addtojsonValue);
+            }
+            catch (Exception e) {
+                e.printStackTrace(); // Print the exception details for debugging purposes
+                jsonObject.put(split[1], " "); // Set a default value in case of failure
+            }
+        }
+        List<String>listfindsec=new ArrayList<>();
+        listfindsec.add("dbo:author");
+        listfindsec.add("dbp:genre");
+        List<String>listfindmap=new ArrayList<>();
+        listfindmap.add("authors");
+        listfindmap.add("genres");
+        for (int i=0; i<listfindsec.size(); i++) {
+            String [] split=listfindsec.get(i).split(":");
+            try{
+                String query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX dbp: <http://dbpedia.org/property/> PREFIX dbo: <http://dbpedia.org/ontology/> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX dbr: <http://dbpedia.org/resource/> SELECT DISTINCT ?"+listfindmap.get(i)+" WHERE{ dbr:"+name+" "+listfindsec.get(i)+"?"+split[1]+". ?"+split[1]+" rdfs:label ?"+listfindmap.get(i)+". FILTER(LANGMATCHES(LANG(?"+listfindmap.get(i)+"), 'en'))}";
+                Query sparqlQuery = QueryFactory.create(query);
+                QueryExecution e = QueryExecutionFactory.sparqlService(SPARQLEndpoint, sparqlQuery);
+                ResultSet result = e.execSelect();
+                QuerySolution solution = result.nextSolution();
+                RDFNode addtojson=solution.get(listfindmap.get(i));
+                String addtojsonValue = addtojson.toString().replaceAll("@en", "");
+                jsonObject.put(listfindmap.get(i), addtojsonValue);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+                jsonObject.put(listfindmap.get(i), " ");
+            }
         }
         return ResponseEntity.ok().body(jsonObject.toString());
     }
@@ -103,7 +131,7 @@ public class AuthorsController {
         QueryExecution e = QueryExecutionFactory.sparqlService(SPARQLEndpoint, sparqlQuery);
         System.out.println("ok");
         JSONObject jsonObject = new JSONObject();
-        List<String> authors=new ArrayList<>();
+        Set<String> authors=new HashSet<>();
         List<String> birth=new ArrayList<>();
         List<String> death=new ArrayList<>();
         try (QueryExecution queryExecution = QueryExecutionFactory.sparqlService(SPARQLEndpoint, sparqlQuery)) {
@@ -120,24 +148,18 @@ public class AuthorsController {
             while (result.hasNext()) {
                 QuerySolution solutionn = result.nextSolution();
                 String ime= String.valueOf(solutionn.get("bname"));
+                String b= String.valueOf(solutionn.get("birth"));
+                String d= String.valueOf(solutionn.get("death"));
                 String [] niza;
                 niza=ime.split("@");
-                authors.add(niza[0]);
+                if(authors.add(niza[0]))
+                {
+                    birth.add(b.substring(0, 10));
+                    death.add(d.substring(0,10));
+                }
             }
             jsonObject.put("authors", authors);
-            ResultSet resultt = queryExecution.execSelect();
-            while (resultt.hasNext()) {
-                QuerySolution solutionnn = resultt.nextSolution();
-                String b= String.valueOf(solutionnn.get("birth"));
-                birth.add(b.substring(0, 10));
-            }
             jsonObject.put("birth", birth);
-            ResultSet resulttt = queryExecution.execSelect();
-            while (resulttt.hasNext()) {
-                QuerySolution solutionnnn = resulttt.nextSolution();
-                String d= String.valueOf(solutionnnn.get("birth"));
-                death.add(d.substring(0,10));
-            }
             jsonObject.put("death", death);
         }
         return ResponseEntity.ok().body(jsonObject.toString());
@@ -151,41 +173,34 @@ public class AuthorsController {
         QueryExecution e = QueryExecutionFactory.sparqlService(SPARQLEndpoint, sparqlQuery);
         System.out.println("ok");
         JSONObject jsonObject = new JSONObject();
-        List<String> authors=new ArrayList<>();
+        Set<String> authors=new HashSet<>();
         List<String> birth=new ArrayList<>();
         List<String> death=new ArrayList<>();
         try (QueryExecution queryExecution = QueryExecutionFactory.sparqlService(SPARQLEndpoint, sparqlQuery)) {
             ResultSet result = queryExecution.execSelect();
             QuerySolution solution = result.nextSolution();
-            String abstractt= String.valueOf(solution.get("abstract"));
-            String abniza [];
-            abniza=abstractt.split("@");
+            String abstractt = String.valueOf(solution.get("abstract"));
+            String abniza[];
+            abniza = abstractt.split("@");
             jsonObject.put("abstract", abniza[0]);
-            String label= String.valueOf(solution.get("label"));
-            String labelniza [];
-            labelniza=label.split("@");
+            String label = String.valueOf(solution.get("label"));
+            String labelniza[];
+            labelniza = label.split("@");
             jsonObject.put("label", labelniza[0]);
             while (result.hasNext()) {
                 QuerySolution solutionn = result.nextSolution();
-                String ime= String.valueOf(solutionn.get("bname"));
-                String [] niza;
-                niza=ime.split("@");
-                authors.add(niza[0]);
+                String ime = String.valueOf(solutionn.get("bname"));
+                String b = String.valueOf(solutionn.get("birth"));
+                String d = String.valueOf(solutionn.get("death"));
+                String[] niza;
+                niza = ime.split("@");
+                if (authors.add(niza[0])) {
+                    birth.add(b.substring(0, 10));
+                    death.add(d.substring(0, 10));
+                }
             }
             jsonObject.put("authors", authors);
-            ResultSet resultt = queryExecution.execSelect();
-            while (resultt.hasNext()) {
-                QuerySolution solutionnn = resultt.nextSolution();
-                String b= String.valueOf(solutionnn.get("birth"));
-                birth.add(b.substring(0, 10));
-            }
             jsonObject.put("birth", birth);
-            ResultSet resulttt = queryExecution.execSelect();
-            while (resulttt.hasNext()) {
-                QuerySolution solutionnnn = resulttt.nextSolution();
-                String d= String.valueOf(solutionnnn.get("birth"));
-                death.add(d.substring(0,10));
-            }
             jsonObject.put("death", death);
         }
         return ResponseEntity.ok().body(jsonObject.toString());
@@ -199,7 +214,7 @@ public class AuthorsController {
         QueryExecution e = QueryExecutionFactory.sparqlService(SPARQLEndpoint, sparqlQuery);
         System.out.println("ok");
         JSONObject jsonObject = new JSONObject();
-        List<String> authors=new ArrayList<>();
+        Set<String> authors=new HashSet<>();
         List<String> birth=new ArrayList<>();
         List<String> death=new ArrayList<>();
         try (QueryExecution queryExecution = QueryExecutionFactory.sparqlService(SPARQLEndpoint, sparqlQuery)) {
@@ -215,25 +230,18 @@ public class AuthorsController {
             jsonObject.put("label", labelniza[0]);
             while (result.hasNext()) {
                 QuerySolution solutionn = result.nextSolution();
-                String ime= String.valueOf(solutionn.get("bname"));
-                String [] niza;
-                niza=ime.split("@");
-                authors.add(niza[0]);
+                String ime = String.valueOf(solutionn.get("bname"));
+                String b = String.valueOf(solutionn.get("birth"));
+                String d = String.valueOf(solutionn.get("death"));
+                String[] niza;
+                niza = ime.split("@");
+                if (authors.add(niza[0])) {
+                    birth.add(b.substring(0, 10));
+                    death.add(d.substring(0, 10));
+                }
             }
             jsonObject.put("authors", authors);
-            ResultSet resultt = queryExecution.execSelect();
-            while (resultt.hasNext()) {
-                QuerySolution solutionnn = resultt.nextSolution();
-                String b= String.valueOf(solutionnn.get("birth"));
-                birth.add(b.substring(0, 10));
-            }
             jsonObject.put("birth", birth);
-            ResultSet resulttt = queryExecution.execSelect();
-            while (resulttt.hasNext()) {
-                QuerySolution solutionnnn = resulttt.nextSolution();
-                String d= String.valueOf(solutionnnn.get("birth"));
-                death.add(d.substring(0,10));
-            }
             jsonObject.put("death", death);
         }
         return ResponseEntity.ok().body(jsonObject.toString());
@@ -247,7 +255,7 @@ public class AuthorsController {
         QueryExecution e = QueryExecutionFactory.sparqlService(SPARQLEndpoint, sparqlQuery);
         System.out.println("ok");
         JSONObject jsonObject = new JSONObject();
-        List<String> authors=new ArrayList<>();
+        Set<String> authors=new HashSet<>();
         List<String> birth=new ArrayList<>();
         List<String> death=new ArrayList<>();
         try (QueryExecution queryExecution = QueryExecutionFactory.sparqlService(SPARQLEndpoint, sparqlQuery)) {
@@ -263,25 +271,18 @@ public class AuthorsController {
             jsonObject.put("label", labelniza[0]);
             while (result.hasNext()) {
                 QuerySolution solutionn = result.nextSolution();
-                String ime= String.valueOf(solutionn.get("bname"));
-                String [] niza;
-                niza=ime.split("@");
-                authors.add(niza[0]);
+                String ime = String.valueOf(solutionn.get("bname"));
+                String b = String.valueOf(solutionn.get("birth"));
+                String d = String.valueOf(solutionn.get("death"));
+                String[] niza;
+                niza = ime.split("@");
+                if (authors.add(niza[0])) {
+                    birth.add(b.substring(0, 10));
+                    death.add(d.substring(0, 10));
+                }
             }
             jsonObject.put("authors", authors);
-            ResultSet resultt = queryExecution.execSelect();
-            while (resultt.hasNext()) {
-                QuerySolution solutionnn = resultt.nextSolution();
-                String b= String.valueOf(solutionnn.get("birth"));
-                birth.add(b.substring(0, 10));
-            }
             jsonObject.put("birth", birth);
-            ResultSet resulttt = queryExecution.execSelect();
-            while (resulttt.hasNext()) {
-                QuerySolution solutionnnn = resulttt.nextSolution();
-                String d= String.valueOf(solutionnnn.get("birth"));
-                death.add(d.substring(0,10));
-            }
             jsonObject.put("death", death);
         }
         return ResponseEntity.ok().body(jsonObject.toString());

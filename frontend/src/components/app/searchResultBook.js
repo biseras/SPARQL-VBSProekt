@@ -18,6 +18,9 @@ const SearchResultBook = ({ data }) => {
                         Published in <span style={{ color: '#0f9d58', fontWeight: 'bold' }}>{mydata.releaseDate}</span> in <span style={{ color: '#0f9d58', fontWeight: 'bold' }}>{mydata.country}</span> and written in <span style={{ color: '#0f9d58', fontWeight: 'bold' }}>{mydata.language}</span>
                     </p>
                 )}
+                <p style={{ fontSize: '24px', lineHeight: '1.5', color: '#666', marginTop: '0', marginBottom: '40px', fontStyle: 'italic' }}>
+                    Author: <span style={{ color: '#0f9d58', fontWeight: 'bold' }}>{mydata.authors}</span> Genre: <span style={{ color: '#0f9d58', fontWeight: 'bold' }}>{mydata.genres}</span>
+                </p>
                 {mydata.abstract && <p style={{ fontSize: '24px', lineHeight: '1.5', color: '#212121', marginTop: '0', marginBottom: '0' }}>{mydata.abstract}</p>}
             </div>
         </div>
